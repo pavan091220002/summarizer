@@ -21,7 +21,7 @@ A Python-based application that fetches news articles for a given company, perfo
 
 ```bash
    # Clone the repository
-   git clone https://github.com/your-username/news-summarizer.git
+   [git clone https://github.com/pavan091220002/summarizer.git]
 
    # Navigate into the directory
    cd news-summarizer
