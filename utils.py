@@ -5,6 +5,7 @@ from gtts import gTTS
 import json
 from typing import List, Dict
 import torch
+from deep_translator import GoogleTranslator
 
 # Initialize NewsAPI client
 newsapi = NewsApiClient(api_key="6c81b327f6054da4adc9360a13844f75")
@@ -72,10 +73,12 @@ def comparative_analysis(articles: List[Dict]) -> Dict:
         "Topic Overlap": {"Common Topics": list(topics)}
     }
 
-# TTS Generation
-def generate_tts(text: str, filename: str = "output.mp3") -> str:
-    """Generate Hindi TTS from text."""
-    tts = gTTS(text=text, lang="hi", slow=False)
+
+# Replace googletrans.Translator with this
+translator = GoogleTranslator(source='en', target='hi')
+def generate_tts(text: str, filename: str = "output.mp3", source_lang: str = "en", dest_lang: str = "hi") -> str:
+    translated = GoogleTranslator(source=source_lang, target=dest_lang).translate(text)
+    tts = gTTS(text=translated, lang=dest_lang, slow=False)
     tts.save(filename)
     return filename
 
@@ -90,8 +93,7 @@ def process_company(company: str) -> Dict:
     
     comparative = comparative_analysis(articles)
     final_analysis_en = f"{company}'s latest news coverage is mostly {max(comparative['Sentiment Distribution'], key=comparative['Sentiment Distribution'].get)}."
-    final_analysis_hi = f"{company} की नवीनतम समाचार कवरेज ज्यादातर {translate_sentiment(comparative['Sentiment Distribution'])} है।"
-    audio_file = generate_tts(final_analysis_hi, "output.mp3")
+    audio_file = generate_tts(final_analysis_en, "output.mp3")
 
     return {
         "Company": company,
@@ -100,9 +102,3 @@ def process_company(company: str) -> Dict:
         "Final Sentiment Analysis": final_analysis_en,
         "Audio": audio_file
     }
-
-def translate_sentiment(sentiment_dist: Dict) -> str:
-    """Translate the dominant sentiment to Hindi."""
-    dominant = max(sentiment_dist, key=sentiment_dist.get)
-    translation = {"Positive": "सकारात्मक", "Negative": "नकारात्मक", "Neutral": "तटस्थ"}
-    return translation.get(dominant, "तटस्थ")
